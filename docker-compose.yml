@@ -1,0 +1,17 @@
+services:
+  ecommerce_db:
+    container_name: ecommerce_db
+    image: postgres:16.3
+    ports:
+      - "5432:5432"
+    networks:
+      - ecommerce
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=ecommerce
+
+networks:
+  ecommerce:
+    name: ecommerce
+    driver: bridge
