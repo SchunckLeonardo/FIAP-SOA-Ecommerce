@@ -2,6 +2,13 @@
 
 A Spring Boot REST API for managing products in an e-commerce platform.
 
+# Team
+- Leonardo Schunck Rainha - 99902
+- Kayky Oliveira Schunck - 99756
+- Ricardo Augusto de Matos Filho - 95906
+- Felipe Voidela Toledo - 98595
+- Paulo Lopes Junior - 551137
+
 ## Technologies
 
 - Kotlin 1.8
