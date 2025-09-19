@@ -23,6 +23,9 @@ spring.datasource.password=your_password
 ```
 4. Run: `./gradlew bootRun`
 
+## Link Postman
+[Postman Collection](https://app.getpostman.com/join-team?invite_code=722c6c34bfe18ba768dbf01606de03f7d7c8b526d1f78d5984aeb109e922cc9f&target_code=a7a729a2e4f49b1be6f46e6de30b715a)
+
 ## API Endpoints
 
 ### Register Product
