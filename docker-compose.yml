@@ -10,8 +10,42 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=ecommerce
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  ecommerce_app:
+    container_name: ecommerce_app
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - ecommerce
+    depends_on:
+      - ecommerce_db
+
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:community
+    ports:
+      - "9000:9000"
+    networks:
+      - ecommerce
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
 
 networks:
   ecommerce:
     name: ecommerce
     driver: bridge
+
+volumes:
+  postgres_data:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
