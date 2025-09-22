@@ -1,62 +1,63 @@
-name: Build
+name: DevSecOps Pipeline CI/CD
 
 on:
   push:
-    branches:
-      - main
-
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
-    name: Build and analyze
+  build-and-analyze:
+    name: Build, Scan and Analyze
     runs-on: ubuntu-latest
 
     steps:
-      - name: Build com Maven
-        run: mvn -B package --file pom.xml
-
-      - name: Snyk SCA Scan
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} # Adicione seu token Snyk nos secrets do repo
+      # 1. Checkout do código-fonte
+      - name: Checkout do código
+        uses: actions/checkout@v4
         with:
-          args: --all-projects --fail-on=upgradable # Falha o build se houver vulnerabilidades corrigíveis
+          fetch-depth: 0  # Necessário para o SonarQube analisar o histórico de commits
 
-      - name: SonarQube SAST Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-      - name: OWASP ZAP Baseline DAST Scan
-        uses: zaproxy/action-baseline@v0.7.0
-        with:
-          target: 'http://52.233.82.58:8000' # Ex: http://meu-app-teste.com
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # 2. Configuração do ambiente Java (JDK 21)
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 21
+          java-version: '21'
           distribution: 'zulu'
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+
+      # 3. Configuração do cache do Gradle para acelerar os builds
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 4. Dar permissão de execução ao Gradle Wrapper
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
-      - name: Build and analyze
+
+      # 5. Análise de Dependências (SCA) com Snyk
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle@master # <-- CORRIGIDO para usar a action do Gradle
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --all-sub-projects --fail-on=upgradable
+
+      # 6. Build, Testes e Análise de Código Estático (SAST) com SonarQube
+      #    Este comando único compila, roda os testes e envia a análise para o SonarCloud.
+      - name: Build and analyze with SonarQube
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Necessário para decorar Pull Requests no SonarCloud
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Secret do SonarCloud
         run: ./gradlew build sonar --info
+
+      # 7. Análise de Segurança Dinâmica (DAST) com OWASP ZAP
+      #    Este passo assume que sua aplicação já está em deploy no IP de destino.
+      - name: OWASP ZAP Baseline DAST Scan
+        uses: zaproxy/action-baseline@v0.11.0 # Versão atualizada da action
+        with:
+          # O target deve ser o endereço público da sua aplicação em ambiente de teste/staging
+          target: 'http://52.233.82.58:8000'
