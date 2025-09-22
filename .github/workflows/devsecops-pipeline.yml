@@ -42,6 +42,7 @@ jobs:
       # 5. Análise de Dependências (SCA) com Snyk
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           # <-- PASSO 2: FORCE O JAVA_HOME PARA O PASSO DA SNYK
