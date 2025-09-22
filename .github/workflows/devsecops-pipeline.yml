@@ -47,7 +47,7 @@ jobs:
           # <-- PASSO 2: FORCE O JAVA_HOME PARA O PASSO DA SNYK
           JAVA_HOME: ${{ steps.setup-java.outputs.jdk-path }}
         with:
-          args: --all-sub-projects --fail-on=upgradable
+          args: --all-sub-projects
 
       # 6. Build, Testes e Análise de Código Estático (SAST) com SonarQube
       - name: Build and analyze with SonarQube
