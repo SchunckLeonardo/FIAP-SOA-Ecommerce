@@ -18,7 +18,7 @@ spring:
     enabled: false
 
 jwt:
-  secret: ${JWT_SECRET_KEY}
+  secret: ${JWT_SECRET_KEY:test-secret-default}
 
 server:
   port: 8080
