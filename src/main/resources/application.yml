@@ -11,7 +11,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: c
+      ddl-auto: update
   flyway:
     user: postgres
     password: postgres
