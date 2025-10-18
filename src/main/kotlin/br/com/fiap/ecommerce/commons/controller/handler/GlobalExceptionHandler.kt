@@ -1,5 +1,8 @@
 package br.com.fiap.ecommerce.commons.controller.handler
 
+import br.com.fiap.ecommerce.auth.entity.exception.CustomerAlreadyRegisteredException
+import br.com.fiap.ecommerce.auth.entity.exception.BadAuthenticationException
+import br.com.fiap.ecommerce.auth.entity.exception.CustomerNotFoundException
 import br.com.fiap.ecommerce.commons.entity.exception.ApiError
 import br.com.fiap.ecommerce.commons.entity.exception.FieldError
 import br.com.fiap.ecommerce.product.entity.exception.ProductNotFoundException
@@ -40,11 +43,44 @@ class GlobalExceptionHandler {
     @ExceptionHandler(ProductNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleProductNotFoundException(
-        e: Exception
+        e: ProductNotFoundException
     ): ApiError {
         return ApiError(
             message = e.message,
             status = HttpStatus.NOT_FOUND.value()
+        )
+    }
+
+    @ExceptionHandler(CustomerNotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleCustomerNotFoundException(
+        e: CustomerNotFoundException
+    ): ApiError {
+        return ApiError(
+            message = e.message,
+            status = HttpStatus.NOT_FOUND.value()
+        )
+    }
+
+    @ExceptionHandler(BadAuthenticationException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleBadAuthenticationException(
+        e: BadAuthenticationException
+    ): ApiError {
+        return ApiError(
+            message = e.message,
+            status = HttpStatus.BAD_REQUEST.value()
+        )
+    }
+
+    @ExceptionHandler(CustomerAlreadyRegisteredException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handleCustomerAlreadyRegisteredException(
+        e: CustomerAlreadyRegisteredException
+    ): ApiError {
+        return ApiError(
+            message = e.message,
+            status = HttpStatus.CONFLICT.value()
         )
     }
     
